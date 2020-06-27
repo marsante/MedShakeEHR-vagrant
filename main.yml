@@ -1,0 +1,115 @@
+---
+- hosts: medshake
+  become: yes
+  vars_files:
+    - secrets.yml
+  tasks:
+    - name: Install packages
+      apt:
+        name: "{{item}}"
+        state: present
+      with_items:
+        - apache2 
+        - php
+        - mariadb-server
+        - ghostscript 
+        - imagemagick 
+        - pdftk 
+        - git 
+        - curl 
+        - composer 
+        - php-gd 
+        - php-intl 
+        - php-curl 
+        - php-zip 
+        - php-xml 
+        - php-imagick 
+        - php-imap 
+        - php-soap 
+        - php-mysql
+        - python-mysqldb
+    
+    - name: Create ehr folders
+      file:
+        path: /home/ehr/public_html
+        state: directory
+        recurse: yes
+        owner: www-data
+        group: www-data
+        mode: '0775'
+
+    - name: Download self installer
+      get_url:
+        url: https://raw.githubusercontent.com/MedShake/MedShakeEHR-base/master/installer/self-installer.php
+        dest: /home/ehr/public_html
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Copy apache2.conf
+      template:
+        src: templates/apache2.conf
+        dest: /etc/apache2/apache2.conf
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Copy 000-default.conf
+      template:
+        src: templates/000-default.conf
+        dest: /etc/apache2/sites-available/000-default.conf
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Copy php.ini
+      template:
+        src: templates/php.ini
+        dest: /etc/php/7.3/apache2/php.ini
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Enabled mod_rewrite and mod_headers
+      apache2_module: 
+        name: "{{ item }}" 
+        state: present
+      with_items:
+          - rewrite
+          - headers
+
+    - name: Set the root password 
+      mysql_user: login_user=root login_password="{{ root_password }}" user=root password="{{ root_password }}"
+
+    - name: Secure the root user for IPV6 localhost (::1)
+      mysql_user: login_user=root login_password="{{ root_password }}" user=root password="{{ root_password }}" host="::1"
+
+    - name: Secure the root user for IPV4 localhost (127.0.0.1)
+      mysql_user: login_user=root login_password="{{ root_password }}" user=root password="{{ root_password }}" host="127.0.0.1"
+
+    - name: Secure the root user for localhost domain
+      mysql_user: login_user=root login_password="{{ root_password }}" user=root password="{{ root_password }}" host="localhost"
+
+    - name: Secure the root user for server_hostname domain
+      mysql_user: login_user=root login_password="{{ root_password }}" user=root password="{{ root_password }}" host="{{ ansible_fqdn }}"
+
+    - name: Deletes anonymous server user
+      mysql_user: login_user=root login_password="{{ root_password }}" user="" host_all=yes state=absent
+
+    - name: Removes the test database
+      mysql_db: login_user=root login_password="{{ root_password }}" db=test state=absent
+
+    - name: Create database user with password and all database privileges and 'WITH GRANT OPTION'
+      mysql_user:
+        name: "{{ admin_account }}"
+        password: "{{ admin_password }}"
+        priv: '*.*:ALL,GRANT'
+        state: present
+          
+    - name: Restart server services
+      service:
+        name: "{{ item }}"
+        state: restarted
+      with_items:
+            - apache2
+            - mariadb
