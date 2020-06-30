@@ -27,6 +27,8 @@
         - php-imap 
         - php-soap 
         - php-mysql
+        - php-json
+        - php-yaml
         - python-mysqldb
     
     - name: Create ehr folders
