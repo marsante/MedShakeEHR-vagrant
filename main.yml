@@ -48,30 +48,43 @@
         group: www-data
         mode: '0755'
 
-    - name: Copy apache2.conf
+    - name: modify upload_max_filesize
+      lineinfile:
+        path: /etc/php/7.3/apache2/php.ini
+        regexp: '^upload_max_filesize = 2M'
+        line: upload_max_filesize = 20M
+
+    - name: modify post_max_size
+      lineinfile:
+        path: /etc/php/7.3/apache2/php.ini
+        regexp: '^post_max_size = 8M'
+        line: post_max_size = 20M
+
+    - name: modify max_input_vars
+      lineinfile:
+        path: /etc/php/7.3/apache2/php.ini
+        regexp: '^max_input_vars = 1000'
+        line: max_input_vars = 10000
+
+    - name: Add apache vhosts configuration.
       template:
-        src: templates/apache2.conf
-        dest: /etc/apache2/apache2.conf
+        src: templates/msehr.local.conf
+        dest: /etc/apache2/sites-available/msehr.local.conf
         owner: root
         group: root
-        mode: '0644'
+        mode: 0644
 
-    - name: Copy 000-default.conf
-      template:
-        src: templates/000-default.conf
-        dest: /etc/apache2/sites-available/000-default.conf
-        owner: root
-        group: root
-        mode: '0644'
+    - name: deregister default vhosts
+      command: a2dissite {{item}} 
+      with_items:
+        - 000-default.conf 
+        - default-ssl.conf
 
-    - name: Copy php.ini
-      template:
-        src: templates/php.ini
-        dest: /etc/php/7.3/apache2/php.ini
-        owner: root
-        group: root
-        mode: '0644'
-
+    - name: register default vhosts
+      command: a2ensite {{item}} 
+      with_items:
+        - msehr.local
+        
     - name: Enabled mod_rewrite and mod_headers
       apache2_module: 
         name: "{{ item }}" 

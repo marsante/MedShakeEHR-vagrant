@@ -18,7 +18,7 @@ admin_password: motdepasseadmin
 
 - Ouvrir un terminal à la racine du projet.
 - Taper la commande suivante `vagrant up`.
-- A la fin de l'exécution de la commande, ouvrir le navigateur se rendre à l'adresse suivante `http://55.55.55.5`.
+- A la fin de l'exécution de la commande, ouvrir le navigateur se rendre à l'adresse suivante `http://55.55.55.5/self-installer.php`.
 - Vous pouvez finir la configuration de MedShakeEHR.
 - Le nom d'utilisateur et le mot de passe root qui vous seront demandé sont en fait le nom et mot de passe que vous avez rempli pour les variables `admin_account:` `admin_password:`
 - [Documentation de MedShakeEHR](https://www.logiciel-cabinet-medical.fr/documentation-technique/)

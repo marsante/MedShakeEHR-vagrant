@@ -15,3 +15,5 @@
 *.code-workspace
 .history
 secrets.yml
+.vagrant/
+*.box
