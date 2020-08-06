@@ -3,34 +3,25 @@
   become: yes
   vars_files:
     - secrets.yml
+
   tasks:
-    - name: Install packages
-      apt:
-        name: "{{item}}"
-        state: present
-      with_items:
-        - apache2 
-        - php
-        - mariadb-server
-        - ghostscript 
-        - imagemagick 
-        - pdftk 
-        - git 
-        - curl 
-        - composer 
-        - php-gd 
-        - php-intl 
-        - php-curl 
-        - php-zip 
-        - php-xml 
-        - php-imagick 
-        - php-imap 
-        - php-soap 
-        - php-mysql
-        - php-json
-        - php-yaml
-        - python-mysqldb
+    - name: Set timezone to Europe/Paris
+      timezone:
+        name: Europe/Paris
     
+    - name: Install packages
+      apt: name={{ item }} update_cache=yes state=latest
+      loop: [ 'apache2', 'php', 'mariadb-server', 'ghostscript', 'imagemagick', 'pdftk', 'git', 'curl', 'composer', 'ntp', ufw, 'php-gd', 'php-intl', 'php-curl', 'php-zip', 'php-xml', 'php-imagick', 'php-imap', 'php-soap', 'php-mysql', 'php-json', 'php-yaml', 'python-mysqldb' ]
+
+    - name: 
+      ufw:
+        state: enabled
+        rule: allow
+        name: '{{ item }}'
+      loop:
+        - OpenSSH
+        - WWW Full
+
     - name: Create ehr folders
       file:
         path: /home/ehr/public_html
@@ -59,14 +50,47 @@
         path: /etc/php/7.3/apache2/php.ini
         regexp: '^post_max_size = 8M'
         line: post_max_size = 20M
-
+    
     - name: modify max_input_vars
       lineinfile:
         path: /etc/php/7.3/apache2/php.ini
         regexp: '^max_input_vars = 1000'
         line: max_input_vars = 10000
 
-    - name: Add apache vhosts configuration.
+    - name: Create cert folders
+      file:
+        path: /etc/ssl/msehr.local
+        state: directory
+        recurse: yes
+        owner: root
+        group: root
+        mode: '0755'
+        
+    - name: Setup crt
+      template:
+        src: templates/cert/msehr.local.crt
+        dest: /etc/ssl/msehr.local/msehr.local.crt
+        owner: root
+        group: root
+        mode: 0644
+    
+    - name: Setup csr
+      template:
+        src: templates/cert/msehr.local.csr
+        dest: /etc/ssl/msehr.local/msehr.local.csr
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Setup key
+      template:
+        src: templates/cert/msehr.local.key
+        dest: /etc/ssl/msehr.local/msehr.local.key
+        owner: root
+        group: root
+        mode: 0600
+  
+    - name: Setup vhosts configuration.
       template:
         src: templates/msehr.local.conf
         dest: /etc/apache2/sites-available/msehr.local.conf
@@ -74,24 +98,37 @@
         group: root
         mode: 0644
 
+    - name: Setup vhosts configuration.
+      template:
+        src: templates/msehr.local-ssl.conf
+        dest: /etc/apache2/sites-available/msehr.local-ssl.conf
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Enabled mod_rewrite, headers and mod_ssl
+      apache2_module: 
+        state: present
+        name: "{{ item }}" 
+      with_items:
+        - headers
+        - rewrite
+        - ssl
+      notify: Restart Apache
+
     - name: deregister default vhosts
       command: a2dissite {{item}} 
       with_items:
         - 000-default.conf 
         - default-ssl.conf
+      notify: Restart Apache
 
     - name: register default vhosts
       command: a2ensite {{item}} 
       with_items:
         - msehr.local
-        
-    - name: Enabled mod_rewrite and mod_headers
-      apache2_module: 
-        name: "{{ item }}" 
-        state: present
-      with_items:
-          - rewrite
-          - headers
+        - msehr.local-ssl
+      notify: Restart Apache
 
     - name: Set the root password 
       mysql_user: login_user=root login_password="{{ root_password }}" user=root password="{{ root_password }}"
@@ -121,10 +158,8 @@
         priv: '*.*:ALL,GRANT'
         state: present
           
-    - name: Restart server services
+  handlers:
+    - name: Restart Apache
       service:
-        name: "{{ item }}"
+        name: apache2
         state: restarted
-      with_items:
-            - apache2
-            - mariadb
