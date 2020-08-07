@@ -11,7 +11,7 @@
     
     - name: Install packages
       apt: name={{ item }} update_cache=yes state=latest
-      loop: [ 'apache2', 'php', 'mariadb-server', 'ghostscript', 'imagemagick', 'pdftk', 'git', 'curl', 'composer', 'ntp', ufw, 'php-gd', 'php-intl', 'php-curl', 'php-zip', 'php-xml', 'php-imagick', 'php-imap', 'php-soap', 'php-mysql', 'php-json', 'php-yaml', 'python-mysqldb' ]
+      loop: [ 'apache2', 'php', 'mariadb-server', 'ghostscript', 'imagemagick', 'pdftk', 'git', 'curl', 'composer', 'ntp', ufw, 'unattended-upgrades', 'php-gd', 'php-intl', 'php-curl', 'php-zip', 'php-xml', 'php-imagick', 'php-imap', 'php-soap', 'php-mysql', 'php-json', 'php-yaml', 'python-mysqldb' ]
 
     - name: 
       ufw:
@@ -21,6 +21,22 @@
       loop:
         - OpenSSH
         - WWW Full
+
+    - name: create APT auto-upgrades configuration
+      template:
+        src: templates/autoUpgrade/20auto-upgrades.j2
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        owner: root
+        group: root
+        mode: 0644
+      
+    - name: create unattended-upgrades configuration
+      template:
+        src: templates/autoUpgrade/50unattended-upgrades.j2
+        dest: /etc/apt/apt.conf.d/50unattended-upgrades
+        owner: root
+        group: root
+        mode: 0644
 
     - name: Create ehr folders
       file:
@@ -106,7 +122,7 @@
         group: root
         mode: 0644
 
-    - name: Enabled mod_rewrite, headers and mod_ssl
+    - name: Enabled mod_rewrite, mod_headers and mod_ssl
       apache2_module: 
         state: present
         name: "{{ item }}" 

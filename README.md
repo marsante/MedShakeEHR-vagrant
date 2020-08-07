@@ -24,7 +24,7 @@ admin_password: motdepasseadmin
 - [Documentation de MedShakeEHR](https://www.logiciel-cabinet-medical.fr/documentation-technique/)
 
 ## Déploiement avec https
-- Commencez par supprimer les fichiers vides du dossier cert `rm templates/cert/*`
+- Commencez par supprimer les fichiers du dossier cert `rm templates/cert/*`
 - Rendez-vous dans le dossier cert `cd templates/cert`
 - Tapez ces commandes :
 ```bash
@@ -51,7 +51,7 @@ openssl x509 -req -days 3650 -in $domaine.csr -signkey $domaine.key -out $domain
 - Pour détruire les fichiers de la machine virtuelle taper `vagrant destroy`.
 - Vous pouvez modifier, les caractéristiques (ip, nombre de CPU, RAM, nom, distribution ...etc) de votre machine virtuelle dans `Vagrantfile`.
 - Vous pouvez modifier l'approvisionnement de la machine virtuelle dans le fichier `main.yml`.
-- Vous pouvez modifier la configuration d'Apache et de PHP via les fichiers de configurations placés dans le dossier `templates`.
+- Vous pouvez modifier la configuration d'Apache via les fichiers de configurations placés dans le dossier `templates`.
 - Pour réapprovisionner la machine virtuelle avec les nouveaux paramètres taper `vagrant provision`.
 
 MedShakeEHR est un projet crée par le Dr Bertrand Boutillieret et rejoint par fr33z00, Abeldvlpr, indelog, gby. Merci à eux. [Dépôt du projet](https://github.com/MedShake/MedShakeEHR-base)
