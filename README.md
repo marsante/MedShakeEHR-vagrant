@@ -18,7 +18,7 @@ admin_password: motdepasseadmin
 
 - Ouvrir un terminal à la racine du projet.
 - Taper la commande suivante `vagrant up`.
-- A la fin de l'exécution de la commande, ouvrir le navigateur se rendre à l'adresse suivante `http://55.55.55.5/self-installer.php`.
+- A la fin de l'exécution de la commande, ouvrir le navigateur se rendre à l'adresse suivante `http://55.55.55.5/install.php`.
 - Vous pouvez finir la configuration de MedShakeEHR.
 - Le nom d'utilisateur et le mot de passe root qui vous seront demandé sont en fait le nom et mot de passe que vous avez rempli pour les variables `admin_account:` `admin_password:`
 - [Documentation de MedShakeEHR](https://www.logiciel-cabinet-medical.fr/documentation-technique/)
@@ -44,14 +44,14 @@ openssl x509 -req -days 3650 -in $domaine.csr -signkey $domaine.key -out $domain
     - Email Address : «adresse mail du webmaster» `example@example.com`
     - A challenge password : «Mot de passe Certificat» : `supermotdepasselong`
     - An optional company name : 
-- Une fois la machine virtuelle lancée, rendez-vous dans votre navigateur à l'adresse `https://55.55.55.5/self-installer.php`
+- Une fois la machine virtuelle lancée, rendez-vous dans votre navigateur à l'adresse `https://55.55.55.5/install.php`
 
 ## Modifications de la configuration
 - Pour arrêter la machine virtuelle taper `vagrant halt`.
 - Pour détruire les fichiers de la machine virtuelle taper `vagrant destroy`.
-- Vous pouvez modifier, les caractéristiques (ip, nombre de CPU, RAM, nom, distribution ...etc) de votre machine virtuelle dans `Vagrantfile`.
+- Vous pouvez modifier, les caractéristiques (ip, nombre de CPU, RAM, nom, distribution ...etc) de votre machine virtuelle dans `Vagrantfile`. Par exemple utiliser un `public network`
 - Vous pouvez modifier l'approvisionnement de la machine virtuelle dans le fichier `main.yml`.
 - Vous pouvez modifier la configuration d'Apache via les fichiers de configurations placés dans le dossier `templates`.
 - Pour réapprovisionner la machine virtuelle avec les nouveaux paramètres taper `vagrant provision`.
 
-MedShakeEHR est un projet crée par le Dr Bertrand Boutillieret et rejoint par fr33z00, Abeldvlpr, indelog, gby. Merci à eux. [Dépôt du projet](https://github.com/MedShake/MedShakeEHR-base)
+MedShakeEHR est un projet crée par le Dr Bertrand Boutillier et rejoint par fr33z00, Abeldvlpr, indelog, gby. Merci à eux. [Dépôt du projet](https://github.com/MedShake/MedShakeEHR-base)

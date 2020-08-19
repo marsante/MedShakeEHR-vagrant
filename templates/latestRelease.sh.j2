@@ -1,0 +1,25 @@
+#! /bin/bash
+# Récupération de la dernière version de MedShakeEHR
+    vversion=$(curl --silent "https://api.github.com/repos/MedShake/MedShakeEHR-base/releases/latest" |
+        grep '"tag_name":' |                                                          
+        sed -E 's/.*"([^"]+)".*/\1/')	
+
+    wget --no-check-certificate https://github.com/MedShake/MedShakeEHR-base/archive/$vversion.zip -P /tmp
+
+# Extraction du zip
+    unzip -q -o -d /tmp /tmp/$vversion.zip 
+
+# Création des répertoires de MedShakeEHR avec les bons droits
+    mkdir -p /home/ehr/public_html
+    version=$(echo $vversion | cut -f2 -d "v")
+    mv -f /tmp/MedShakeEHR-base-$version/* /home/ehr
+    sed -i "1iSetEnv MEDSHAKEEHRPATH /home/ehr" /home/ehr/public_html/.htaccess
+
+# Réglages des bons droits utilisateurs
+    chown www-data:www-data -R /home/ehr
+    chmod 755 /home/ehr /home/ehr/public_html 
+
+# Nettoyage
+removeInstallFiles() {
+    rm -r /tmp/$vversion.zip /tmp/MedShakeEHR-base-$version /tmp/latestRelease.sh
+}

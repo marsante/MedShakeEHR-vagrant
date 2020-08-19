@@ -11,7 +11,7 @@
     
     - name: Install packages
       apt: name={{ item }} update_cache=yes state=latest
-      loop: [ 'apache2', 'php', 'mariadb-server', 'ghostscript', 'imagemagick', 'pdftk', 'git', 'curl', 'composer', 'ntp', ufw, 'unattended-upgrades', 'php-gd', 'php-intl', 'php-curl', 'php-zip', 'php-xml', 'php-imagick', 'php-imap', 'php-soap', 'php-mysql', 'php-json', 'php-yaml', 'python-mysqldb' ]
+      loop: [ 'apache2', 'php', 'mariadb-server', 'ghostscript', 'imagemagick', 'pdftk', 'git', 'curl', 'composer', 'ntp', ufw, 'unattended-upgrades', 'php-gd', 'php-intl', 'php-curl', 'php-zip', 'php-xml', 'php-imagick', 'php-imap', 'php-soap', 'php-mysql', 'php-json', 'php-yaml', 'php-gnupg', 'python-mysqldb' ]
 
     - name: 
       ufw:
@@ -38,22 +38,32 @@
         group: root
         mode: 0644
 
-    - name: Create ehr folders
-      file:
-        path: /home/ehr/public_html
-        state: directory
-        recurse: yes
-        owner: www-data
-        group: www-data
-        mode: '0775'
-
-    - name: Download self installer
-      get_url:
-        url: https://raw.githubusercontent.com/MedShake/MedShakeEHR-base/master/installer/self-installer.php
-        dest: /home/ehr/public_html
-        owner: www-data
-        group: www-data
+    - name: install template for latest release
+      template:
+        src: templates/latestRelease.sh.j2
+        dest: /tmp/latestRelease.sh
+        owner: root
+        group: root
         mode: '0755'
+
+    - name:  check if MedShakeEHR exist
+      stat:
+        path: /home/ehr/public_html
+      register: msehr 
+    
+    - name: Run script for latest release
+      command: /tmp/latestRelease.sh
+      when: not msehr.stat.exists
+
+    - name: Composer upgrade on /ehr
+      composer:
+        command: upgrade
+        working_dir: /home/ehr
+    
+    - name: Composer upgrade on /ehr/public_html
+      composer:
+        command: upgrade
+        working_dir: /home/ehr/public_html
 
     - name: modify upload_max_filesize
       lineinfile:
@@ -70,7 +80,7 @@
     - name: modify max_input_vars
       lineinfile:
         path: /etc/php/7.3/apache2/php.ini
-        regexp: '^max_input_vars = 1000'
+        regexp: '^;max_input_vars = 1000'
         line: max_input_vars = 10000
 
     - name: Create cert folders
@@ -167,13 +177,19 @@
     - name: Removes the test database
       mysql_db: login_user=root login_password="{{ root_password }}" db=test state=absent
 
+    - name: check if DB exists
+      shell: mysql -e 'SHOW DATABASES;' | grep {{ admin_account }}
+      register: dbstatus
+      failed_when: dbstatus.rc == 2
+
     - name: Create database user with password and all database privileges and 'WITH GRANT OPTION'
       mysql_user:
         name: "{{ admin_account }}"
         password: "{{ admin_password }}"
         priv: '*.*:ALL,GRANT'
         state: present
-          
+      when: dbstatus.rc == 0 
+        
   handlers:
     - name: Restart Apache
       service:
