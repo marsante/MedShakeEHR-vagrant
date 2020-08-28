@@ -10,8 +10,35 @@
         name: Europe/Paris
     
     - name: Install packages
-      apt: name={{ item }} update_cache=yes state=latest
-      loop: [ 'apache2', 'php', 'mariadb-server', 'ghostscript', 'imagemagick', 'pdftk', 'git', 'curl', 'composer', 'ntp', ufw, 'unattended-upgrades', 'php-gd', 'php-intl', 'php-curl', 'php-zip', 'php-xml', 'php-imagick', 'php-imap', 'php-soap', 'php-mysql', 'php-json', 'php-yaml', 'php-gnupg', 'python-mysqldb' ]
+      apt: 
+        pkg:
+          - apache2
+          - php
+          - mariadb-server
+          - ghostscript 
+          - imagemagick
+          - pdftk
+          - git
+          - curl
+          - composer
+          - ntp
+          - ufw
+          - unattended-upgrades
+          - php-gd
+          - php-intl
+          - php-curl
+          - php-zip
+          - php-xml
+          - php-imagick
+          - php-imap
+          - php-soap
+          - php-mysql
+          - php-json
+          - php-yaml
+          - php-gnupg
+          - python-mysqldb
+        update_cache: yes 
+        state: latest
 
     - name: 
       ufw:
@@ -177,19 +204,20 @@
     - name: Removes the test database
       mysql_db: login_user=root login_password="{{ root_password }}" db=test state=absent
 
-    - name: check if DB exists
-      shell: mysql -e 'SHOW DATABASES;' | grep {{ admin_account }}
-      register: dbstatus
-      failed_when: dbstatus.rc == 2
-
+    - name: Create database user with password and all database privileges and 'WITH GRANT OPTION'
+      mysql_user:
+        name: "{{ admin_account }}"
+        state: present  
+      register: user_exist
+    
     - name: Create database user with password and all database privileges and 'WITH GRANT OPTION'
       mysql_user:
         name: "{{ admin_account }}"
         password: "{{ admin_password }}"
         priv: '*.*:ALL,GRANT'
-        state: present
-      when: dbstatus.rc == 0 
-        
+        state: present    
+      when: user_exist.changed
+
   handlers:
     - name: Restart Apache
       service:
