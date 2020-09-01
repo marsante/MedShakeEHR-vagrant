@@ -203,12 +203,6 @@
 
     - name: Removes the test database
       mysql_db: login_user=root login_password="{{ root_password }}" db=test state=absent
-
-    - name: Create database user with password and all database privileges and 'WITH GRANT OPTION'
-      mysql_user:
-        name: "{{ admin_account }}"
-        state: present  
-      register: user_exist
     
     - name: Create database user with password and all database privileges and 'WITH GRANT OPTION'
       mysql_user:
@@ -216,7 +210,6 @@
         password: "{{ admin_password }}"
         priv: '*.*:ALL,GRANT'
         state: present    
-      when: user_exist.changed
 
   handlers:
     - name: Restart Apache
