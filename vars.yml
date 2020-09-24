@@ -1,0 +1,32 @@
+timezone: Europe/Paris
+msehrPath: /home/ehr
+domain: msehr.local
+uploadMaxFilesize: upload_max_filesize = 20M
+postMaxsize: post_max_size = 20M
+maxInputVars: max_input_vars = 10000
+msehrPackages:
+    - apache2
+    - php
+    - mariadb-server
+    - ghostscript 
+    - imagemagick
+    - pdftk
+    - git
+    - curl
+    - composer
+    - ntp
+    - ufw
+    - unattended-upgrades
+    - php-gd
+    - php-intl
+    - php-curl
+    - php-zip
+    - php-xml
+    - php-imagick
+    - php-imap
+    - php-soap
+    - php-mysql
+    - php-json
+    - php-yaml
+    - php-gnupg
+    - python-mysqldb

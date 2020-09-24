@@ -3,40 +3,16 @@
   become: yes
   vars_files:
     - secrets.yml
+    - vars.yml
 
   tasks:
-    - name: Set timezone to Europe/Paris
+    - name: Set timezone 
       timezone:
-        name: Europe/Paris
+        name: "{{ timezone }}"
     
     - name: Install packages
       apt: 
-        pkg:
-          - apache2
-          - php
-          - mariadb-server
-          - ghostscript 
-          - imagemagick
-          - pdftk
-          - git
-          - curl
-          - composer
-          - ntp
-          - ufw
-          - unattended-upgrades
-          - php-gd
-          - php-intl
-          - php-curl
-          - php-zip
-          - php-xml
-          - php-imagick
-          - php-imap
-          - php-soap
-          - php-mysql
-          - php-json
-          - php-yaml
-          - php-gnupg
-          - python-mysqldb
+        name: "{{ msehrPackages }}"
         update_cache: yes 
         state: latest
 
@@ -75,7 +51,7 @@
 
     - name:  check if MedShakeEHR exist
       stat:
-        path: /home/ehr/public_html
+        path: "{{ msehrPath }}/public_html"
       register: msehr 
     
     - name: Run script for latest release
@@ -85,34 +61,34 @@
     - name: Composer upgrade on /ehr
       composer:
         command: upgrade
-        working_dir: /home/ehr
+        working_dir: "{{ msehrPath }}"
     
     - name: Composer upgrade on /ehr/public_html
       composer:
         command: upgrade
-        working_dir: /home/ehr/public_html
+        working_dir: "{{ msehrPath }}/public_html"
 
     - name: modify upload_max_filesize
       lineinfile:
         path: /etc/php/7.3/apache2/php.ini
         regexp: '^upload_max_filesize = 2M'
-        line: upload_max_filesize = 20M
+        line: "{{ uploadMaxFilesize }}"
 
     - name: modify post_max_size
       lineinfile:
         path: /etc/php/7.3/apache2/php.ini
         regexp: '^post_max_size = 8M'
-        line: post_max_size = 20M
+        line: "{{ postMaxsize }}"
     
     - name: modify max_input_vars
       lineinfile:
         path: /etc/php/7.3/apache2/php.ini
         regexp: '^;max_input_vars = 1000'
-        line: max_input_vars = 10000
+        line: "{{ maxInputVars }}"
 
     - name: Create cert folders
       file:
-        path: /etc/ssl/msehr.local
+        path: "/etc/ssl/{{ domain }}"
         state: directory
         recurse: yes
         owner: root
@@ -121,40 +97,40 @@
         
     - name: Setup crt
       template:
-        src: templates/cert/msehr.local.crt
-        dest: /etc/ssl/msehr.local/msehr.local.crt
+        src: "templates/cert/{{ domain }}.crt"
+        dest: "/etc/ssl/{{ domain }}/{{ domain }}.crt"
         owner: root
         group: root
         mode: 0644
     
     - name: Setup csr
       template:
-        src: templates/cert/msehr.local.csr
-        dest: /etc/ssl/msehr.local/msehr.local.csr
+        src: "templates/cert/{{ domain }}.csr"
+        dest: "/etc/ssl/{{ domain }}/{{ domain }}.csr"
         owner: root
         group: root
         mode: 0644
 
     - name: Setup key
       template:
-        src: templates/cert/msehr.local.key
-        dest: /etc/ssl/msehr.local/msehr.local.key
+        src: "templates/cert/{{ domain }}.key"
+        dest: "/etc/ssl/{{ domain }}/{{ domain }}.key"
         owner: root
         group: root
         mode: 0600
   
     - name: Setup vhosts configuration.
       template:
-        src: templates/msehr.local.conf
-        dest: /etc/apache2/sites-available/msehr.local.conf
+        src: "templates/{{ domain }}.conf"
+        dest: "/etc/apache2/sites-available/{{ domain }}.conf"
         owner: root
         group: root
         mode: 0644
 
     - name: Setup vhosts configuration.
       template:
-        src: templates/msehr.local-ssl.conf
-        dest: /etc/apache2/sites-available/msehr.local-ssl.conf
+        src: "templates/{{ domain }}-ssl.conf"
+        dest: "/etc/apache2/sites-available/{{ domain }}-ssl.conf"
         owner: root
         group: root
         mode: 0644
@@ -179,8 +155,8 @@
     - name: register default vhosts
       command: a2ensite {{item}} 
       with_items:
-        - msehr.local
-        - msehr.local-ssl
+        - "{{ domain }}"
+        - "{{ domain }}-ssl"
       notify: Restart Apache
 
     - name: Set the root password 
