@@ -184,6 +184,8 @@
       mysql_user:
         name: "{{ admin_account }}"
         password: "{{ admin_password }}"
+        login_user: root
+        login_password: "{{ root_password }}"
         priv: '*.*:ALL,GRANT'
         state: present    
 

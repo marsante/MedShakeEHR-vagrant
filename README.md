@@ -2,7 +2,7 @@
 ### Un fichier Vagrant pour déployer rapidement un environnement de développement approvisionné par Ansible pour MedShakeEHR 
 
 ## Prérequis
-- Avoir [VirtualBox](https://www.virtualbox.org/wiki/Downloads), [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) et [Vagrant](https://www.vagrantup.com/docs/installation) de configuré sur votre machine.
+- Avoir [VirtualBox](https://www.virtualbox.org/wiki/Downloads), [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) > 2.9 et [Vagrant](https://www.vagrantup.com/docs/installation) de configuré sur votre machine.
 - Crée dans un but de démo ou de développement, ne pas utiliser en production avec des données réelles sans ajouter des paramètres de sécurité (mot de passe fort, https, contrôle d'accès).
 
 ## Installation 
