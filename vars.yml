@@ -6,27 +6,28 @@ postMaxsize: post_max_size = 20M
 maxInputVars: max_input_vars = 10000
 msehrPackages:
     - apache2
-    - php
-    - mariadb-server
-    - ghostscript 
-    - imagemagick
-    - pdftk
-    - git
-    - curl
     - composer
+    - curl
+    - ghostscript 
+    - git
+    - grub
+    - imagemagick
+    - mariadb-server
     - ntp
-    - ufw
-    - unattended-upgrades
-    - php-gd
-    - php-intl
+    - pdftk
+    - php
     - php-curl
-    - php-zip
-    - php-xml
+    - php-gd
+    - php-gnupg
     - php-imagick
     - php-imap
-    - php-soap
-    - php-mysql
+    - php-intl
     - php-json
+    - php-mysql
+    - php-soap
+    - php-xml
     - php-yaml
-    - php-gnupg
+    - php-zip
     - python-mysqldb
+    - ufw
+    - unattended-upgrades
