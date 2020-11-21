@@ -179,16 +179,25 @@
 
     - name: Removes the test database
       mysql_db: login_user=root login_password="{{ root_password }}" db=test state=absent
-    
+
     - name: Create database user with password and all database privileges and 'WITH GRANT OPTION'
       mysql_user:
         name: "{{ admin_account }}"
         password: "{{ admin_password }}"
         login_user: root
         login_password: "{{ root_password }}"
-        priv: '*.*:ALL,GRANT'
+        priv: 'medshakeehr.*:ALL,GRANT'
         state: present    
 
+    - name: Ensure MedShakeEHR database is present.
+      mysql_db:
+        name: medshakeehr
+        login_user: "{{ admin_account }}"
+        login_password: "{{ admin_password }}"
+        collation: utf8_general_ci
+        encoding: utf8
+        state: present
+        
   handlers:
     - name: Restart Apache
       service:
