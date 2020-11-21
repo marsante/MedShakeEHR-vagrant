@@ -121,7 +121,7 @@
   
     - name: Setup vhosts configuration.
       template:
-        src: "templates/{{ domain }}.conf"
+        src: templates/vhostConf/msehr.local.conf.j2
         dest: "/etc/apache2/sites-available/{{ domain }}.conf"
         owner: root
         group: root
@@ -129,7 +129,7 @@
 
     - name: Setup vhosts configuration.
       template:
-        src: "templates/{{ domain }}-ssl.conf"
+        src: templates/vhostConf/msehr.local-ssl.conf.j2
         dest: "/etc/apache2/sites-available/{{ domain }}-ssl.conf"
         owner: root
         group: root
@@ -197,7 +197,7 @@
         collation: utf8_general_ci
         encoding: utf8
         state: present
-        
+
   handlers:
     - name: Restart Apache
       service:

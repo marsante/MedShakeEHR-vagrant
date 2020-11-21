@@ -1,0 +1,14 @@
+<VirtualHost *:443>
+	ServerName {{ domain }}
+	ServerAlias msehr ehr medshakeehr MedShakeEHR msehr.local
+	DocumentRoot "{{ msehrPath }}/public_html"
+        SSLCertificateFile /etc/ssl/{{ domain }}/{{ domain }}.crt
+        SSLCertificateKeyFile /etc/ssl/{{ domain }}/{{ domain }}.key
+	<Directory "{{ msehrPath }}/public_html">
+		Options FollowSymLinks
+		AllowOverride all
+		Require all granted
+	</Directory>
+	ErrorLog /var/log/apache2/error.{{ domain }}.log
+	CustomLog /var/log/apache2/access.{{ domain }}.log combined
+</VirtualHost> 
