@@ -182,7 +182,7 @@
 
     - name: Ensure MedShakeEHR database is present.
       mysql_db:
-        name: medshakeehr
+        name: "{{ sqlDbName }}"
         login_user: "{{ sqlUserAccount }}"
         login_password: "{{ sqlUserPassword }}"
         collation: utf8_general_ci

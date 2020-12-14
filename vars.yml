@@ -1,6 +1,7 @@
 timezone: Europe/Paris
-msehrPath: /home/ehr
+msehrPath: /opt/ehr
 domain: msehr.local
+sqlDbName: medshakeehr
 uploadMaxFilesize: upload_max_filesize = 20M
 postMaxsize: post_max_size = 20M
 maxInputVars: max_input_vars = 10000
