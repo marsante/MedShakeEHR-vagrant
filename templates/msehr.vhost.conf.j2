@@ -11,7 +11,7 @@
 	DocumentRoot "{{ msehrPath }}/public_html"
 	RewriteEngine On
 	SSLEngine On
-    SSLCertificateFile /etc/ssl/{{ domain }}/{{ domain }}.crt
+    SSLCertificateFile /etc/ssl/{{ domain }}/{{ domain }}.pem
     SSLCertificateKeyFile /etc/ssl/{{ domain }}/{{ domain }}.key
 	<Directory "{{ msehrPath }}/public_html">
 		Options FollowSymLinks

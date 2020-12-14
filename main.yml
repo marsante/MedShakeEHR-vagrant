@@ -27,7 +27,7 @@
 
     - name: create APT auto-upgrades configuration
       template:
-        src: templates/autoUpgrade/20auto-upgrades.j2
+        src: templates/20auto-upgrades.j2
         dest: /etc/apt/apt.conf.d/20auto-upgrades
         owner: root
         group: root
@@ -35,7 +35,7 @@
       
     - name: create unattended-upgrades configuration
       template:
-        src: templates/autoUpgrade/50unattended-upgrades.j2
+        src: templates/50unattended-upgrades.j2
         dest: /etc/apt/apt.conf.d/50unattended-upgrades
         owner: root
         group: root
@@ -86,7 +86,11 @@
         regexp: '^;max_input_vars = 1000'
         line: "{{ maxInputVars }}"
 
-    - name: Create cert folders
+    - name: install pyOpenSSL
+      pip:
+        name: pyOpenSSL
+
+    - name: Creates SSL directory
       file:
         path: "/etc/ssl/{{ domain }}"
         state: directory
@@ -94,31 +98,29 @@
         owner: root
         group: root
         mode: '0755'
-        
-    - name: Setup crt
-      template:
-        src: "templates/cert/{{ domain }}.crt"
-        dest: "/etc/ssl/{{ domain }}/{{ domain }}.crt"
-        owner: root
-        group: root
-        mode: 0644
-    
-    - name: Setup csr
-      template:
-        src: "templates/cert/{{ domain }}.csr"
-        dest: "/etc/ssl/{{ domain }}/{{ domain }}.csr"
-        owner: root
-        group: root
-        mode: 0644
 
-    - name: Setup key
-      template:
-        src: "templates/cert/{{ domain }}.key"
-        dest: "/etc/ssl/{{ domain }}/{{ domain }}.key"
-        owner: root
-        group: root
-        mode: 0600
-  
+    - name: create private key
+      openssl_privatekey:
+        path: "/etc/ssl/{{ domain }}/{{ domain }}.key"
+
+    - name: Generate an OpenSSL Certificate Signing Request with Subject information
+      openssl_csr:
+        path: "/etc/ssl/{{ domain }}/{{ domain }}.csr"
+        privatekey_path: "/etc/ssl/{{ domain }}/{{ domain }}.key"
+        country_name: "{{ countryName }}"
+        locality_name: "{{ localityName }}"
+        organization_name: "{{ organizationName }}"
+        email_address: "{{ emailAdress }}"
+        common_name: "{{ domain }}"
+
+    - name: Generate a Self Signed OpenSSL certificate
+      openssl_certificate:
+        path: "/etc/ssl/{{ domain }}/{{ domain }}.pem"
+        privatekey_path: "/etc/ssl/{{ domain }}/{{ domain }}.key"
+        csr_path: "/etc/ssl/{{ domain }}/{{ domain }}.csr"
+        provider: selfsigned
+        valid_in: 315360000 
+      
     - name: Setup vhosts configuration.
       template:
         src: templates/msehr.vhost.conf.j2
