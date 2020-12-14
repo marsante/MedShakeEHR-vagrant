@@ -11,16 +11,17 @@
 
 ```yml
 ---
-root_password: motdepasseroot
-admin_account: nomdecompteadmin
-admin_password: motdepasseadmin
+sqlRootPassword: motDePasseRoot
+sqlUserAccount: user
+sqlUserPassword: motDePasseUser
 ```
 
 - Ouvrir un terminal à la racine du projet.
 - Taper la commande suivante `vagrant up`.
 - A la fin de l'exécution de la commande, ouvrir le navigateur se rendre à l'adresse suivante `http://55.55.55.5/install.php`.
 - Vous pouvez finir la configuration de MedShakeEHR.
-- Le nom d'utilisateur et le mot de passe root qui vous seront demandé sont en fait le nom et mot de passe que vous avez rempli pour les variables `admin_account:` `admin_password:`
+- Dans l'écran de configuration rapide cochez la case : `Ne pas créer la base de donnée`
+- Le nom d'utilisateur et le mot de passe utilisateur correspondent à ce que vous avez choisi pour les variables `sqlUserAccount:` et `sqlUserPassword:`
 - [Documentation de MedShakeEHR](https://www.logiciel-cabinet-medical.fr/documentation-technique/)
 
 ## Déploiement avec https
@@ -29,7 +30,7 @@ admin_password: motdepasseadmin
 - Tapez ces commandes :
 ```bash
 domaine=msehr.local
-openssl genrsa -out $domaine.key 2048
+openssl genrsa -out $domaine.key 4096
 openssl req -new -key $domaine.key -out $domaine.csr
 openssl x509 -req -days 3650 -in $domaine.csr -signkey $domaine.key -out $domaine.crt
 ```

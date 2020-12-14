@@ -121,16 +121,8 @@
   
     - name: Setup vhosts configuration.
       template:
-        src: templates/vhostConf/msehr.local.conf.j2
+        src: templates/msehr.vhost.conf.j2
         dest: "/etc/apache2/sites-available/{{ domain }}.conf"
-        owner: root
-        group: root
-        mode: 0644
-
-    - name: Setup vhosts configuration.
-      template:
-        src: templates/vhostConf/msehr.local-ssl.conf.j2
-        dest: "/etc/apache2/sites-available/{{ domain }}-ssl.conf"
         owner: root
         group: root
         mode: 0644
@@ -156,44 +148,43 @@
       command: a2ensite {{item}} 
       with_items:
         - "{{ domain }}"
-        - "{{ domain }}-ssl"
       notify: Restart Apache
 
     - name: Set the root password 
-      mysql_user: login_user=root login_password="{{ root_password }}" user=root password="{{ root_password }}"
+      mysql_user: login_user=root login_password="{{ sqlRootPassword }}" user=root password="{{ sqlRootPassword }}"
 
     - name: Secure the root user for IPV6 localhost (::1)
-      mysql_user: login_user=root login_password="{{ root_password }}" user=root password="{{ root_password }}" host="::1"
+      mysql_user: login_user=root login_password="{{ sqlRootPassword }}" user=root password="{{ sqlRootPassword }}" host="::1"
 
     - name: Secure the root user for IPV4 localhost (127.0.0.1)
-      mysql_user: login_user=root login_password="{{ root_password }}" user=root password="{{ root_password }}" host="127.0.0.1"
+      mysql_user: login_user=root login_password="{{ sqlRootPassword }}" user=root password="{{ sqlRootPassword }}" host="127.0.0.1"
 
     - name: Secure the root user for localhost domain
-      mysql_user: login_user=root login_password="{{ root_password }}" user=root password="{{ root_password }}" host="localhost"
+      mysql_user: login_user=root login_password="{{ sqlRootPassword }}" user=root password="{{ sqlRootPassword }}" host="localhost"
 
     - name: Secure the root user for server_hostname domain
-      mysql_user: login_user=root login_password="{{ root_password }}" user=root password="{{ root_password }}" host="{{ ansible_fqdn }}"
+      mysql_user: login_user=root login_password="{{ sqlRootPassword }}" user=root password="{{ sqlRootPassword }}" host="{{ ansible_fqdn }}"
 
     - name: Deletes anonymous server user
-      mysql_user: login_user=root login_password="{{ root_password }}" user="" host_all=yes state=absent
+      mysql_user: login_user=root login_password="{{ sqlRootPassword }}" user="" host_all=yes state=absent
 
     - name: Removes the test database
-      mysql_db: login_user=root login_password="{{ root_password }}" db=test state=absent
+      mysql_db: login_user=root login_password="{{ sqlRootPassword }}" db=test state=absent
 
     - name: Create database user with password and all database privileges and 'WITH GRANT OPTION'
       mysql_user:
-        name: "{{ admin_account }}"
-        password: "{{ admin_password }}"
+        name: "{{ sqlUserAccount }}"
+        password: "{{ sqlUserPassword }}"
         login_user: root
-        login_password: "{{ root_password }}"
+        login_password: "{{ sqlRootPassword }}"
         priv: 'medshakeehr.*:ALL,GRANT'
         state: present    
 
     - name: Ensure MedShakeEHR database is present.
       mysql_db:
         name: medshakeehr
-        login_user: "{{ admin_account }}"
-        login_password: "{{ admin_password }}"
+        login_user: "{{ sqlUserAccount }}"
+        login_password: "{{ sqlUserPassword }}"
         collation: utf8_general_ci
         encoding: utf8
         state: present
