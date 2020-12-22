@@ -191,8 +191,21 @@
         encoding: utf8
         state: present
 
+    - name: remove pyOpenSSL
+      pip:
+        name: pyOpenSSL
+        state: absent
+
+    - name: remove pip
+      apt: 
+        name: python-pip
+        state: absent
+        autoclean: yes
+        autoremove: yes
+
   handlers:
     - name: Restart Apache
       service:
         name: apache2
         state: restarted
+

@@ -12,7 +12,6 @@
 
 ```yml
 ---
-certPrivateKeyPassword: certPrivateKeyPassword
 countryName: FR
 localityName: Paris
 organizationName: Dr Strange
