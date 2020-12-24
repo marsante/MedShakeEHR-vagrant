@@ -14,7 +14,7 @@
     version=$(echo $vversion | cut -f2 -d "v")
     mv -f /tmp/MedShakeEHR-base-$version/* {{ msehrPath }}
     msehrPath={{ msehrPath }}
-    sed -i "1iSetEnv MEDSHAKEEHRPATH $msehrPath" "{{ msehrPath }}/public_html/.htaccess"
+    sed -i "1iSetEnv MEDSHAKEEHRPATH {{ msehrPath }}" "{{ msehrPath }}/public_html/.htaccess"
 
 # Réglages des bons droits utilisateurs
     chown www-data:www-data -R {{ msehrPath }}
