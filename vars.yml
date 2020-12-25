@@ -15,6 +15,7 @@ msehrPackages:
     - imagemagick
     - mariadb-server
     - ntp
+    #- orthanc
     - pdftk
     - php
     - php-curl

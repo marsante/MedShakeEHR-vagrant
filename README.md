@@ -3,7 +3,7 @@
 
 ## Prérequis
 - Avoir [VirtualBox](https://www.virtualbox.org/wiki/Downloads), [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html) > 2.9 et [Vagrant](https://www.vagrantup.com/docs/installation) de configuré sur votre machine.
-- Crée dans un but de démo ou de développement, ne pas utiliser en production avec des données réelles sans ajouter des paramètres de sécurité (mot de passe fort, https, contrôle d'accès).
+- Crée dans un but de démo ou de développement, ne pas utiliser en production avec des données réelles sans ajouter des paramètres de sécurité (mot de passe fort, contrôle d'accès).
 
 ## Installation 
 - Cloner le projet.
@@ -16,10 +16,12 @@ countryName: FR
 localityName: Paris
 organizationName: Dr Strange
 emailAdress: email@domain.tld
-sqlRootPassword: motDePasseRoot
+sqlRootPassword: root
 sqlUserAccount: user
-sqlUserPassword: motDePasseUser
+sqlUserPassword: user
 sqlDbName: medshakeehr
+orthancUser: user
+orthancPswd: orthancPswd
 ```
 
 - Taper la commande suivante `vagrant up`.

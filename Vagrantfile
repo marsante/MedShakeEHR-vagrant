@@ -12,12 +12,12 @@ Vagrant.configure("2") do |config|
     #    v.cpus = 2
     #  end
     config.vm.define 'medshake' do |node|
-        node.vm.hostname ='medshake.local'
+        node.vm.hostname ='msehr.local'
         node.vm.provision "ansible" do |ansible|
             ansible.playbook = "main.yml"
         end
     config.vm.network "private_network", ip: "55.55.55.5"    
-    # Pour tester Dicom et Phonecapture sur son réseau local 
+    # Pour tester Phonecapture sur son réseau local 
     #config.vm.network "public_network"   
     end
   end
