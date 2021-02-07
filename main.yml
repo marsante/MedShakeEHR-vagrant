@@ -81,23 +81,13 @@
         command: upgrade
         working_dir: "{{ msehrPath }}/public_html"
 
-    - name: modify upload_max_filesize
-      lineinfile:
-        path: /etc/php/7.3/apache2/php.ini
-        regexp: '^upload_max_filesize = 2M'
-        line: "{{ uploadMaxFilesize }}"
-
-    - name: modify post_max_size
-      lineinfile:
-        path: /etc/php/7.3/apache2/php.ini
-        regexp: '^post_max_size = 8M'
-        line: "{{ postMaxsize }}"
-    
-    - name: modify max_input_vars
-      lineinfile:
-        path: /etc/php/7.3/apache2/php.ini
-        regexp: '^;max_input_vars = 1000'
-        line: "{{ maxInputVars }}"
+    - name: Setup php.ini configuration.
+      template:
+        src: templates/php.ini.j2
+        dest: "/etc/php/7.3/apache2/php.ini"
+        owner: root
+        group: root
+        mode: 0644
 
     - name: install pyOpenSSL
       pip:
