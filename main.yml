@@ -1,9 +1,7 @@
 ---
 - hosts: medshake
   become: yes
-  vars_files:
-    - secrets.yml
-    - vars.yml
+  vars_files: secrets.yml
 
   tasks:
     - name: Set timezone 
@@ -57,6 +55,21 @@
     - name: Run script for latest release
       command: /tmp/latestRelease.sh
       when: not msehr.stat.exists
+
+    - name: Creating MEDSHAKEEHRPATH file
+      copy:
+        dest: "{{ msehrPath }}/public_html/MEDSHAKEEHRPATH"
+        content: |
+          {{ msehrPath }}
+        
+    - name: Add good permissions and ownership to medshakeehr folder
+      ansible.builtin.file:
+        path: "{{ msehrPath }}"
+        state: directory
+        recurse: yes
+        owner: www-data
+        group: "{{ user }}"
+        mode: '0755'
 
     - name: Composer upgrade on /ehr
       composer:

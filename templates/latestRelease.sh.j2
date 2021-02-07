@@ -1,26 +1,18 @@
 #! /bin/bash
+
 # Récupération de la dernière version de MedShakeEHR
-    vversion=$(curl --silent "https://api.github.com/repos/MedShake/MedShakeEHR-base/releases/latest" |
-        grep '"tag_name":' |                                                          
-        sed -E 's/.*"([^"]+)".*/\1/')	
+vversion=$(curl --silent "https://api.github.com/repos/MedShake/MedShakeEHR-base/releases/latest" |
+    grep '"tag_name":' |                                                          
+    sed -E 's/.*"([^"]+)".*/\1/')	
 
-    wget --no-check-certificate https://github.com/MedShake/MedShakeEHR-base/archive/$vversion.zip -P /tmp
+wget --no-check-certificate https://github.com/MedShake/MedShakeEHR-base/archive/$vversion.zip -P /tmp
 
-# Extraction du zip
-    unzip -q -o -d /tmp /tmp/$vversion.zip 
+unzip -q -o -d /tmp /tmp/$vversion.zip 
 
-# Création des répertoires de MedShakeEHR avec les bons droits
+# Création des répertoires de MedShakeEHR
     mkdir -p "{{ msehrPath }}/public_html"
     version=$(echo $vversion | cut -f2 -d "v")
     mv -f /tmp/MedShakeEHR-base-$version/* {{ msehrPath }}
-    msehrPath={{ msehrPath }}
-    sed -i '1iSetEnv MEDSHAKEEHRPATH {{ msehrPath }}' "{{ msehrPath }}/public_html/.htaccess"
-
-# Réglages des bons droits utilisateurs
-    chown www-data:www-data -R {{ msehrPath }}
-    chmod 755 {{ msehrPath }} "{{ msehrPath }}/public_html"
 
 # Nettoyage
-removeInstallFiles() {
-    rm -r /tmp/$vversion.zip /tmp/MedShakeEHR-base-$version /tmp/latestRelease.sh
-}
+rm -r /tmp/$vversion.zip /tmp/MedShakeEHR-base-$version /tmp/latestRelease.sh

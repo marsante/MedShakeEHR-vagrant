@@ -8,20 +8,11 @@
 ## Installation 
 - Cloner le projet.
 - Ouvrir un terminal à la racine du projet.
-- Créer un fichier `secrets.yml` à la racine du projet pour personnaliser les infos et mots de passes comme dans l'exemple :
+- Configurer le fichier `secrets.yml` à la racine du projet pour personnaliser les infos et mots de passes :
 
-```yml
----
-countryName: FR
-localityName: Paris
-organizationName: Dr Strange
-emailAdress: email@domain.tld
-sqlRootPassword: root
-sqlUserAccount: user
-sqlUserPassword: user
-sqlDbName: medshakeehr
-orthancUser: user
-orthancPswd: orthancPswd
+```bash
+cp secrets-samples.yml secrets.yml
+nano secrets.yml
 ```
 
 - Taper la commande suivante `vagrant up`.
