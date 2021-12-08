@@ -16,7 +16,7 @@ nano secrets.yml
 ```
 
 - Taper la commande suivante `vagrant up`.
-- A la fin de l'exécution de la commande, ouvrir le navigateur se rendre à l'adresse suivante `http://55.55.55.5/install.php`.
+- A la fin de l'exécution de la commande, ouvrir le navigateur se rendre à l'adresse suivante `http://192.168.56.4/install.php`.
 - Vous pouvez finir la configuration de MedShakeEHR.
 - Dans l'écran de configuration rapide cochez la case : `Ne pas créer la base de donnée`
 - Le nom d'utilisateur et le mot de passe utilisateur correspondent à ce que vous avez choisi pour les variables `sqlUserAccount:` et `sqlUserPassword:`
