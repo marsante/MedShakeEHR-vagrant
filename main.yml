@@ -123,7 +123,7 @@
         provider: selfsigned
         valid_in: 315360000 
         state: present
-      
+
     - name: Setup vhosts configuration.
       template:
         src: templates/msehr.vhost.conf.j2
@@ -153,6 +153,22 @@
       command: a2ensite {{item}} 
       with_items:
         - "{{ domain }}"
+      notify: Restart Apache
+
+    - name: Set ServerTokens Prod
+      lineinfile:
+        path: /etc/apache2/conf-available/security.conf
+        regexp: '^ServerTokens OS'
+        line: ServerTokens Prod
+        state: present
+      notify: Restart Apache
+
+    - name: Set ServerSignature Off
+      lineinfile:
+        path: /etc/apache2/conf-available/security.conf
+        regexp: '^ServerSignature On'
+        line: ServerSignature Off
+        state: present
       notify: Restart Apache
 
     - name: Set the root password 
