@@ -121,7 +121,7 @@
         privatekey_path: "/etc/ssl/{{ domain }}/{{ domain }}.key"
         csr_path: "/etc/ssl/{{ domain }}/{{ domain }}.csr"
         provider: selfsigned
-        valid_in: 315360000 
+        selfsigned_not_after: +3650d
         state: present
 
     - name: Setup vhosts configuration.
