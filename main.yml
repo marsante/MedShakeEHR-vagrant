@@ -39,37 +39,34 @@
         group: root
         mode: 0644
 
-    - name: install template for latest release
-      template:
-        src: templates/latestRelease.sh.j2
-        dest: /tmp/latestRelease.sh
-        owner: root
-        group: root
-        mode: '0755'
-
     - name:  check if MedShakeEHR exist
       stat:
         path: "{{ msehrPath }}/public_html"
       register: msehr 
     
-    - name: Run script for latest release
-      command: /tmp/latestRelease.sh
+    - name: Get MedShakeEHR package
+      get_url:
+        url: "{{ msehr_base_repo_url }}v{{ msehr_base_release }}"
+        dest: "/tmp/msehr.tar.gz"
+        checksum: "{{ msehr_base_checksum }}"
       when: not msehr.stat.exists
 
-    - name: Creating MEDSHAKEEHRPATH file
+    - name: Extract MedShakeEHR package
+      unarchive:
+        src: "/tmp/msehr.tar.gz"
+        remote_src: yes
+        dest: "/tmp/"
+      when: not msehr.stat.exists
+
+    - name: Install MedShakeEHR file
       copy:
-        dest: "{{ msehrPath }}/public_html/MEDSHAKEEHRPATH"
-        content: |
-          {{ msehrPath }}
-        
-    - name: Add good permissions and ownership to medshakeehr folder
-      ansible.builtin.file:
-        path: "{{ msehrPath }}"
-        state: directory
-        recurse: yes
+        remote_src: yes
+        src: "/tmp/MedShakeEHR-base-{{ msehr_base_release }}/"
+        dest: "{{ msehrPath }}"
+        mode: "u=rwX,go=rX"
         owner: www-data
-        group: "{{ user }}"
-        mode: '0755'
+        group: www-data
+      when: not msehr.stat.exists 
 
     - name: Composer upgrade on /ehr
       shell: cd "{{ msehrPath }}" && composer upgrade --no-cache   
@@ -113,6 +110,7 @@
         organization_name: "{{ organizationName }}"
         email_address: "{{ emailAdress }}"
         common_name: "{{ domain }}"
+        subject_alt_name: 'DNS:"{{ domain }}"'
         state: present
 
     - name: Generate a Self Signed OpenSSL certificate
@@ -222,23 +220,21 @@
         group: root
         mode: 0644
       when: "'orthanc' in ansible_facts.packages"
-
-    - name: install template for msehr-cli
-      template:
-        src: templates/msehrCli.sh.j2
-        dest: /tmp/msehrCli.sh
-        owner: root
-        group: root
-        mode: '0755'
-    
-    - name:  check if config.yml exist
-      stat:
-        path: /vagrant/config/config.yml
-      register: ymlconfig 
       
-    - name: Run msehr-cli 
-      command: /tmp/msehrCli.sh
-      when: not ymlconfig.stat.exists
+    - name: Execute MedShakeEHR cli installation script
+      shell: "/usr/bin/php {{ msehrPath }}/public_html/install.php -s localhost -N -d {{ sqlDbName }} -u {{ sqlUserAccount }} -p \"{{ sqlUserPassword }}\" -r https -D {{ domain }}"
+      become: true
+      become_user: www-data
+      environment:
+        MEDSHAKEEHRPATH: "{{ msehrPath }}"
+      when: not msehr.stat.exists
+
+    - name: Creating MEDSHAKEEHRPATH file
+      copy:
+        dest: "{{ msehrPath }}/public_html/MEDSHAKEEHRPATH"
+        content: |
+          {{ msehrPath }}
+      when: not msehr.stat.exists
 
   handlers:
     - name: Restart Apache
