@@ -46,7 +46,7 @@
     
     - name: Get MedShakeEHR package
       get_url:
-        url: "{{ msehr_base_repo_url }}v{{ msehr_base_release }}"
+        url: "{{ msehr_base_repo_url }}v{{ msehr_base_release }}.tar.gz"
         dest: "/tmp/msehr.tar.gz"
         checksum: "{{ msehr_base_checksum }}"
       when: not msehr.stat.exists
@@ -64,6 +64,15 @@
         src: "/tmp/MedShakeEHR-base-{{ msehr_base_release }}/"
         dest: "{{ msehrPath }}"
         mode: "u=rwX,go=rX"
+        owner: www-data
+        group: www-data
+      when: not msehr.stat.exists 
+
+    - name: Creating MEDSHAKEEHRPATH file
+      copy:
+        dest: "{{ msehrPath }}/public_html/MEDSHAKEEHRPATH"
+        content: |
+          {{ msehrPath }}
         owner: www-data
         group: www-data
       when: not msehr.stat.exists 
@@ -121,7 +130,7 @@
         provider: selfsigned
         selfsigned_not_after: +3650d
         state: present
-
+      
     - name: Setup vhosts configuration.
       template:
         src: templates/msehr.vhost.conf.j2
@@ -220,6 +229,11 @@
         group: root
         mode: 0644
       when: "'orthanc' in ansible_facts.packages"
+    
+    - name:  check if config.yml exist
+      stat:
+        path: /opt/ehr/config/config.yml
+      register: ymlconfig 
       
     - name: Execute MedShakeEHR cli installation script
       shell: "/usr/bin/php {{ msehrPath }}/public_html/install.php -s localhost -N -d {{ sqlDbName }} -u {{ sqlUserAccount }} -p \"{{ sqlUserPassword }}\" -r https -D {{ domain }}"
@@ -227,14 +241,7 @@
       become_user: www-data
       environment:
         MEDSHAKEEHRPATH: "{{ msehrPath }}"
-      when: not msehr.stat.exists
-
-    - name: Creating MEDSHAKEEHRPATH file
-      copy:
-        dest: "{{ msehrPath }}/public_html/MEDSHAKEEHRPATH"
-        content: |
-          {{ msehrPath }}
-      when: not msehr.stat.exists
+      when: not ymlconfig.stat.exists
 
   handlers:
     - name: Restart Apache
