@@ -46,7 +46,7 @@
     
     - name: Get MedShakeEHR package
       get_url:
-        url: "{{ msehr_base_repo_url }}v{{ msehr_base_release }}.tar.gz"
+        url: "{{ msehr_base_repo_url }}v{{ msehr_base_release }}"
         dest: "/tmp/msehr.tar.gz"
         checksum: "{{ msehr_base_checksum }}"
       when: not msehr.stat.exists
