@@ -13,7 +13,7 @@ Vagrant.configure("2") do |config|
     # Pour personnaliser les spécifications de la machine
     config.vm.provider "virtualbox" do |v|
         v.memory = 512
-        v.cpus = 6
+        v.cpus = 2
       end
     config.vm.provider "libvirt" do |lb|
         lb.memory = 512
