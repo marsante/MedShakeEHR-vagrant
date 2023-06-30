@@ -90,7 +90,7 @@
     - name: Setup php.ini configuration.
       template:
         src: templates/php.ini.j2
-        dest: "/etc/php/7.4/apache2/php.ini"
+        dest: "/etc/php/{{ php_version }}/apache2/php.ini"
         owner: root
         group: root
         mode: 0644
@@ -216,19 +216,6 @@
         collation: utf8_general_ci
         encoding: utf8
         state: present
-
-    - name: Gather package facts
-      package_facts:
-        manager: apt
-
-    - name: Setup orthanc configuration.
-      template:
-        src: templates/orthanc.conf.j2
-        dest: "/etc/orthanc/orthanc.json"
-        owner: root
-        group: root
-        mode: 0644
-      when: "'orthanc' in ansible_facts.packages"
     
     - name:  check if config.yml exist
       stat:
@@ -236,7 +223,7 @@
       register: ymlconfig 
       
     - name: Execute MedShakeEHR cli installation script
-      shell: "/usr/bin/php {{ msehrPath }}/public_html/install.php -s localhost -N -d {{ sqlDbName }} -u {{ sqlUserAccount }} -p \"{{ sqlUserPassword }}\" -r https -D {{ domain }}"
+      shell: "/usr/bin/php {{ msehrPath }}/public_html/install.php -s localhost -N -d {{ sqlDbName }} -u {{ sqlUserAccount }} -p \"{{ sqlUserPassword }}\" -r https -D {{ domain }} -o localhost"
       become: true
       become_user: www-data
       environment:
