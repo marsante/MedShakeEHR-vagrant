@@ -1,4 +1,9 @@
 Vagrant.configure("2") do |config|
+    # config.hostmanager.enabled = true
+    # config.hostmanager.manage_host = true
+    # config.hostmanager.manage_guest = true
+    # config.hostmanager.ignore_private_ip = false
+    # config.hostmanager.include_offline = true
     config.vm.box = "debian/bookworm64"
     config.vm.define "medshake"
     config.vm.hostname = "msehr.local"
