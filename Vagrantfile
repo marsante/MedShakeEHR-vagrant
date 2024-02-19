@@ -7,7 +7,7 @@ Vagrant.configure("2") do |config|
     config.vm.box = "debian/bookworm64"
     config.vm.define "medshake"
     config.vm.hostname = "msehr.local"
-    config.vm.network "private_network", ip: "192.168.56.4"
+    config.vm.network "private_network", ip: "192.168.57.4"
     config.vm.synced_folder ".", "/vagrant", type: "rsync"
 
     # Pour tester Phonecapture sur son réseau local 
