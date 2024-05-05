@@ -1,0 +1,10 @@
+// Ansible managed
+
+// Overrides 20auto-upgrades
+
+// Do "apt-get autoclean" every n-days (0=disable)
+APT::Periodic::AutocleanInterval "7";
+
+// Overrides 50unattended-upgrades
+
+Unattended-Upgrade::Remove-Unused-Dependencies "true";

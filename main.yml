@@ -22,19 +22,11 @@
       loop:
         - OpenSSH
         - WWW Full
-
-    - name: create APT auto-upgrades configuration
-      template:
-        src: templates/20auto-upgrades.j2
-        dest: /etc/apt/apt.conf.d/20auto-upgrades
-        owner: root
-        group: root
-        mode: 0644
       
-    - name: create unattended-upgrades configuration
+    - name: override unattended-upgrades configuration
       template:
-        src: templates/50unattended-upgrades.j2
-        dest: /etc/apt/apt.conf.d/50unattended-upgrades
+        src: templates/80unattended-upgrades.j2
+        dest: /etc/apt/apt.conf.d/80unattended-upgrades
         owner: root
         group: root
         mode: 0644
@@ -93,8 +85,8 @@
 
     - name: Setup php.ini configuration.
       template:
-        src: templates/php.ini.j2
-        dest: "/etc/php/{{ php_version.stdout }}/apache2/php.ini"
+        src: templates/10-custom-php.ini.j2
+        dest: "/etc/php/{{ php_version.stdout }}/apache2/conf.d/10-custom-php.ini"
         owner: root
         group: root
         mode: 0644
