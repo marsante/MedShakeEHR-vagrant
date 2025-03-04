@@ -4,7 +4,7 @@ Vagrant.configure("2") do |config|
     # config.hostmanager.manage_guest = true
     # config.hostmanager.ignore_private_ip = false
     # config.hostmanager.include_offline = true
-    config.vm.box = "debian/bookworm64"
+    config.vm.box = "generic/debian12"
     config.vm.define "medshake"
     config.vm.hostname = "msehr.local"
     config.vm.network "private_network", ip: "192.168.57.4"
@@ -24,6 +24,7 @@ Vagrant.configure("2") do |config|
     config.vm.provider "qemu" do |qe|
       qe.memory = 512
       qe.cpus = 2
+      # qe.qemu_dir = "/usr/local/share/qemu" # For brew user
     end
 
     config.vm.provider "virtualbox" do |vb|
