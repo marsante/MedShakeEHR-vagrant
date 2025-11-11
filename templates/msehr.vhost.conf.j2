@@ -14,6 +14,7 @@
 	SSLEngine On
     SSLCertificateFile /etc/ssl/{{ domain }}/{{ domain }}.pem
     SSLCertificateKeyFile /etc/ssl/{{ domain }}/{{ domain }}.key
+	SetEnv MEDSHAKEEHRPATH "{{ msehrPath }}"
 	<Directory "{{ msehrPath }}/public_html">
 		Options FollowSymLinks
 		AllowOverride all

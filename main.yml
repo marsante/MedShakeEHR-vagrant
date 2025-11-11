@@ -4,7 +4,7 @@
   vars_files: secrets.yml
 
   tasks:
-    - name: Set timezone
+    - name: "Set timezone to {{ timezone }}"
       timezone:
         name: "{{ timezone }}"
 
@@ -23,7 +23,7 @@
         - OpenSSH
         - WWW Full
 
-    - name: override unattended-upgrades configuration
+    - name: Override unattended-upgrades configuration
       template:
         src: templates/80unattended-upgrades.j2
         dest: /etc/apt/apt.conf.d/80unattended-upgrades
@@ -31,12 +31,12 @@
         group: root
         mode: 0644
 
-    - name: check if MedShakeEHR exist
+    - name: "Check if {{ msehrPath }} folder exist"
       stat:
         path: "{{ msehrPath }}/public_html"
       register: msehr
 
-    - name: Get MedShakeEHR package
+    - name: "Get MedShakeEHR package v{{ msehr_base_release }}"
       get_url:
         url: "{{ msehr_base_repo_url }}v{{ msehr_base_release }}"
         dest: "/tmp/msehr.tar.gz"
@@ -60,27 +60,17 @@
         group: www-data
       when: not msehr.stat.exists
 
-    - name: Creating MEDSHAKEEHRPATH file
-      copy:
-        dest: "{{ msehrPath }}/public_html/MEDSHAKEEHRPATH"
-        content: |
-          {{ msehrPath }}
-        owner: www-data
-        group: www-data
-        mode: preserve
-      when: not msehr.stat.exists
-
-    - name: Composer upgrade on /ehr
+    - name: "Composer upgrade on {{ msehrPath }}"
       shell: cd "{{ msehrPath }}" && composer upgrade --no-cache
       become: true
       become_user: www-data
 
-    - name: Composer upgrade on /ehr/public_html
+    - name: "Composer upgrade on {{ msehrPath }}/public_html"
       shell: cd "{{ msehrPath }}/public_html" && composer upgrade --no-cache
       become: true
       become_user: www-data
 
-    - name: register php version
+    - name: Register php version
       shell: 'php -r "echo PHP_VERSION;" | cut -c1-3'
       register: php_version
 
@@ -92,7 +82,7 @@
         group: root
         mode: 0644
 
-    - name: Creates SSL directory
+    - name: "Creates SSL {{ domain }} directory"
       file:
         path: "/etc/ssl/{{ domain }}"
         state: directory
@@ -101,13 +91,13 @@
         group: root
         mode: '0755'
 
-    - name: create private key
+    - name: "Create {{ domain }} private key"
       openssl_privatekey:
         path: "/etc/ssl/{{ domain }}/{{ domain }}.key"
         size: 4096
         state: present
 
-    - name: Generate an OpenSSL Certificate Signing Request with Subject information
+    - name: "Generate an OpenSSL Certificate Signing Request with Subject information for {{ domain }}"
       openssl_csr:
         path: "/etc/ssl/{{ domain }}/{{ domain }}.csr"
         privatekey_path: "/etc/ssl/{{ domain }}/{{ domain }}.key"
@@ -119,7 +109,7 @@
         subject_alt_name: 'DNS:"{{ domain }}"'
         state: present
 
-    - name: Generate a Self Signed OpenSSL certificate
+    - name: "Generate a Self Signed OpenSSL certificate for {{ domain }}"
       openssl_certificate:
         path: "/etc/ssl/{{ domain }}/{{ domain }}.pem"
         privatekey_path: "/etc/ssl/{{ domain }}/{{ domain }}.key"
@@ -128,7 +118,7 @@
         selfsigned_not_after: +3650d
         state: present
 
-    - name: Setup vhosts configuration.
+    - name: "Setup {{ domain }} vhosts configuration."
       template:
         src: templates/msehr.vhost.conf.j2
         dest: "/etc/apache2/sites-available/{{ domain }}.conf"
@@ -146,14 +136,14 @@
         - ssl
       notify: Restart Apache
 
-    - name: deregister default vhosts
+    - name: dest:eregister default vhosts
       command: a2dissite {{item}}
       with_items:
         - 000-default.conf
         - default-ssl.conf
       notify: Restart Apache
 
-    - name: register default vhosts
+    - name: "Register {{ domain }} vhosts"
       command: a2ensite {{item}}
       with_items:
         - "{{ domain }}"
@@ -196,13 +186,13 @@
     - name: Removes the test database
       mysql_db: login_user=root login_password="{{ sqlRootPassword }}" db=test state=absent
 
-    - name: Create database user with password and all database privileges and 'WITH GRANT OPTION'
+    - name: "Create {{ sqlUserAccount }} user with password and all {{ sqlDbName }} database privileges and 'WITH GRANT OPTION'"
       mysql_user:
         name: "{{ sqlUserAccount }}"
         password: "{{ sqlUserPassword }}"
         login_user: root
         login_password: "{{ sqlRootPassword }}"
-        priv: 'medshakeehr.*:ALL,GRANT'
+        priv: "{{ sqlDbName }}.*:ALL,GRANT"
         state: present
 
     - name: Ensure MedShakeEHR database is present.
@@ -214,18 +204,14 @@
         encoding: utf8
         state: present
 
-    - name: check if config.yml exist
-      stat:
-        path: /opt/ehr/config/config.yml
-      register: ymlconfig
-
     - name: Execute MedShakeEHR cli installation script
       shell: "/usr/bin/php {{ msehrPath }}/public_html/install.php -s localhost -N -d {{ sqlDbName }} -u {{ sqlUserAccount }} -p \"{{ sqlUserPassword }}\" -r https -D {{ domain }} -o localhost"
       become: true
       become_user: www-data
       environment:
         MEDSHAKEEHRPATH: "{{ msehrPath }}"
-      when: not ymlconfig.stat.exists
+      args:
+        creates: /opt/ehr/config/config.yml
 
   handlers:
     - name: Restart Apache
